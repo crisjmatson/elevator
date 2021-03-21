@@ -1,4 +1,4 @@
-//import { Task, Elevator } from "./interfaces";
+import { Task } from "./interfaces";
 
 export const ADD_ELEVATOR = "ADD_ELEVATOR";
 export const addElevator = () => ({
@@ -11,11 +11,16 @@ export const removeElevator = (request: string) => ({
 });
 
 //--------------------------------------------------------------
-/* 
-export const ADD_FLOOR_REQUEST = "ADD_FLOOR_REQUEST";
-export const addTask = (request: Task) => ({
+export const ASSIGN_FROM_MAIN = "ASSIGN_FROM_MAIN"; //RANDOM
+export const assignMainTasks = (request: any) => ({
+	type: ASSIGN_FROM_MAIN,
+	body: request,
+});
+//--------------------------------------------------------------
+
+export const ADD_FLOOR_REQUEST = "ADD_FLOOR_REQUEST"; //RANDOM
+export const addTask = () => ({
 	type: ADD_FLOOR_REQUEST,
-	body: { request },
 });
 export const COMPLETE_FLOOR_REQUEST = "COMPLETE_FLOOR_REQUEST";
 export const completeTask = (request: Task) => ({
@@ -27,4 +32,3 @@ export const cancelTask = (request: Task) => ({
 	type: CANCEL_FLOOR_REQUEST,
 	body: { request },
 });
- */

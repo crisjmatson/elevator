@@ -1,27 +1,60 @@
 import { useEffect } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { addElevator, removeElevator } from "./actions";
-import { Building, Elevator, Task } from "./interfaces";
+import {
+	addElevator,
+	addTask,
+	removeElevator,
+	assignMainTasks,
+} from "./actions";
 import Cab from "./Cab";
-//import Lobby from "./Lobby";
-//import MainShaft from "./MainShaft";
-//import Queue from "./Queue";
-import { getElevators, getFloorCount, getMainQueue } from "./selectors";
+import { Elevator, Task } from "./interfaces";
+import Request from "./Request";
+import {
+	getAscending,
+	getDescending,
+	getElevators,
+	getFloorCount,
+	getMainQueue,
+	getStationary,
+} from "./selectors";
 
 const Foundation = styled.div`
 	background-color: cyan;
-	width: 80%;
-	height: 90%;
+	border: thick solid yellow;
 	display: flex;
 `;
 
+const StyledQueue = styled.div`
+	width: auto;
+	height: auto;
+	display: flex;
+	flex-flow: row wrap;
+	background-color: white;
+`;
+const StyledLobby = styled.div`
+	width: auto;
+	height: auto;
+	/* display: flex;
+	flex-flow: row wrap; */
+	background-color: orange;
+`;
+
+interface propsEle {
+	all: Elevator[];
+	stationary: Elevator[];
+	ascending: Elevator[];
+	descending: Elevator[];
+}
+
 interface Props {
-	elevators: Elevator[];
+	elevators: propsEle;
 	queue: Task[];
 	floors: number;
 	onCreateElevatorPressed: () => any;
-	onRemoveElevator: (body: any) => any;
+	onRemoveElevator: (body: string) => any;
+	onAddTask: () => any;
+	assignTasksInMain: (queue: Task[], elevators: any) => any;
 }
 
 function OfficeBuilding({
@@ -30,11 +63,19 @@ function OfficeBuilding({
 	floors,
 	onCreateElevatorPressed,
 	onRemoveElevator,
+	onAddTask,
+	assignTasksInMain,
 }: Props) {
 	useEffect(() => {
 		onCreateElevatorPressed();
 		return () => {};
 	}, [onCreateElevatorPressed]);
+	useEffect(() => {
+		assignTasksInMain(queue, elevators);
+		return () => {
+			console.log("new useEffect fired");
+		};
+	}, [assignTasksInMain, queue, elevators]);
 	const loadingMessage = (
 		<div>
 			Loading building...
@@ -49,26 +90,49 @@ function OfficeBuilding({
 	);
 	const content = (
 		<Foundation>
-			<div style={{ border: "thick solid yellow" }}>
+			<button>Next Move</button>
+			<span>
+				<h5>office building</h5>
 				<button
 					onClick={() => {
-						console.log("within officeBuilding: ", elevators, floors);
+						console.log(elevators);
 						onCreateElevatorPressed();
 					}}
 				>
 					add new elevator!
 				</button>
-				{elevators.map((elevator) => (
-					<Cab elevator={elevator} onRemoveElevator={onRemoveElevator} />
-				))}
-			</div>
+				<StyledQueue>
+					{elevators.all.map((elevator) => {
+						let index = elevators.all.indexOf(elevator);
+						return (
+							<Cab
+								index={index + 1}
+								elevator={elevator}
+								onRemoveElevator={onRemoveElevator}
+								key={elevator.id}
+							/>
+						);
+					})}
+				</StyledQueue>
+			</span>
+			<StyledLobby>
+				<button onClick={() => onAddTask()}>add random request</button>
+				{queue.map((task) => {
+					return <Request task={task} key={task.id} />;
+				})}
+			</StyledLobby>
 		</Foundation>
 	);
 	return elevators !== undefined ? content : loadingMessage;
 }
 
-const mapStateToProps = (state: Building) => ({
-	elevators: getElevators(state),
+const mapStateToProps = (state: any) => ({
+	elevators: {
+		all: getElevators(state),
+		stationary: getStationary(state),
+		ascending: getAscending(state),
+		descending: getDescending(state),
+	},
 	queue: getMainQueue(state),
 	floors: getFloorCount(state),
 });
@@ -76,6 +140,9 @@ const mapStateToProps = (state: Building) => ({
 const mapDispatchToProps = (dispatch: any) => ({
 	onCreateElevatorPressed: () => dispatch(addElevator()),
 	onRemoveElevator: (id: string) => dispatch(removeElevator(id)),
+	onAddTask: () => dispatch(addTask()),
+	assignTasksInMain: (queue: Task[], elevators: Elevator[]) =>
+		dispatch(assignMainTasks(queue)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(OfficeBuilding);

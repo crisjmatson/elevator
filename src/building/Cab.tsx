@@ -8,19 +8,27 @@ const StyledCab = styled.div`
 	background-color: red;
 `;
 interface Props {
+	index: number;
 	elevator: Elevator;
 	onRemoveElevator: any;
 }
 
-export const Cab = ({ elevator, onRemoveElevator }: Props) => {
+export const Cab = ({ index, elevator, onRemoveElevator }: Props) => {
 	return (
 		<StyledCab>
-			<h4>id: {elevator.id}</h4>
-			<p>currently on: {elevator.floorCurrent}</p>
-			<button onClick={() => onRemoveElevator(elevator.id)}>
-				remove elevator
-			</button>
-			<button onClick={() => console.log(elevator)}>TEST</button>
+			<p>
+				# {index}, {elevator.id} {"   "}
+				<button onClick={() => onRemoveElevator(elevator.id)}>X</button>
+			</p>
+			<p>current: {elevator.floorCurrent}</p>
+			<p>
+				current tasks:{" "}
+				{elevator.stack.map((task) => {
+					return <p>{task}</p>;
+				})}
+			</p>
+
+			<button onClick={() => console.log(elevator)}>LOG </button>
 		</StyledCab>
 	);
 };
