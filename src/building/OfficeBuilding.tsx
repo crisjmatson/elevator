@@ -8,7 +8,7 @@ import {
 	assignMainTasks,
 } from "./actions";
 import Cab from "./Cab";
-import { Elevator, Task } from "./interfaces";
+import { SortedEle, Task } from "./interfaces";
 import Request from "./Request";
 import {
 	getAscending,
@@ -40,21 +40,14 @@ const StyledLobby = styled.div`
 	background-color: orange;
 `;
 
-interface propsEle {
-	all: Elevator[];
-	stationary: Elevator[];
-	ascending: Elevator[];
-	descending: Elevator[];
-}
-
 interface Props {
-	elevators: propsEle;
+	elevators: SortedEle;
 	queue: Task[];
 	floors: number;
 	onCreateElevatorPressed: () => any;
 	onRemoveElevator: (body: string) => any;
 	onAddTask: () => any;
-	assignTasksInMain: (queue: Task[], elevators: any) => any;
+	assignTasksInMain: () => any;
 }
 
 function OfficeBuilding({
@@ -70,12 +63,6 @@ function OfficeBuilding({
 		onCreateElevatorPressed();
 		return () => {};
 	}, [onCreateElevatorPressed]);
-	useEffect(() => {
-		assignTasksInMain(queue, elevators);
-		return () => {
-			console.log("new useEffect fired");
-		};
-	}, [assignTasksInMain, queue, elevators]);
 	const loadingMessage = (
 		<div>
 			Loading building...
@@ -90,12 +77,12 @@ function OfficeBuilding({
 	);
 	const content = (
 		<Foundation>
-			<button>Next Move</button>
+			<button onClick={() => assignTasksInMain()}>Next Move</button>
 			<span>
 				<h5>office building</h5>
 				<button
 					onClick={() => {
-						console.log(elevators);
+						//console.log(elevators);
 						onCreateElevatorPressed();
 					}}
 				>
@@ -141,8 +128,7 @@ const mapDispatchToProps = (dispatch: any) => ({
 	onCreateElevatorPressed: () => dispatch(addElevator()),
 	onRemoveElevator: (id: string) => dispatch(removeElevator(id)),
 	onAddTask: () => dispatch(addTask()),
-	assignTasksInMain: (queue: Task[], elevators: Elevator[]) =>
-		dispatch(assignMainTasks(queue)),
+	assignTasksInMain: () => dispatch(assignMainTasks()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(OfficeBuilding);

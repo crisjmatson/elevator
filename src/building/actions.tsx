@@ -12,9 +12,8 @@ export const removeElevator = (request: string) => ({
 
 //--------------------------------------------------------------
 export const ASSIGN_FROM_MAIN = "ASSIGN_FROM_MAIN"; //RANDOM
-export const assignMainTasks = (request: any) => ({
+export const assignMainTasks = () => ({
 	type: ASSIGN_FROM_MAIN,
-	body: request,
 });
 //--------------------------------------------------------------
 

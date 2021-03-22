@@ -1,12 +1,22 @@
-import { ADD_ELEVATOR, REMOVE_ELEVATOR, ADD_FLOOR_REQUEST } from "./actions";
-import { Building, Elevator } from "./interfaces";
+import {
+	ADD_ELEVATOR,
+	REMOVE_ELEVATOR,
+	ADD_FLOOR_REQUEST,
+	ASSIGN_FROM_MAIN,
+} from "./actions";
+import { Building, Elevator, SortedEle, Assignment } from "./interfaces";
 const initialState: Building = {
 	queue: [],
 	shafts: [],
 	floors: 20,
 };
 export const elevators = (state: Building = initialState, action: any) => {
-	const mainShaft = state.shafts;
+	const mainShaft: SortedEle = {
+		all: state.shafts,
+		stationary: state.shafts.filter((cab) => cab.direction === 1),
+		ascending: state.shafts.filter((cab) => cab.direction === 2),
+		descending: state.shafts.filter((cab) => cab.direction === 3),
+	};
 	const queue = state.queue;
 	const floors = state.floors;
 	const type = action.type;
@@ -23,14 +33,14 @@ export const elevators = (state: Building = initialState, action: any) => {
 			};
 			return {
 				queue: [...queue],
-				shafts: [...mainShaft.concat(newElevator)],
+				shafts: [...mainShaft.all.concat(newElevator)],
 				floors: floors,
 			};
 		}
 		case REMOVE_ELEVATOR: {
 			return {
 				queue: [...queue],
-				shafts: mainShaft.filter((cab) => cab.id !== body),
+				shafts: mainShaft.all.filter((cab) => cab.id !== body),
 				floors: floors,
 			};
 		}
@@ -50,9 +60,38 @@ export const elevators = (state: Building = initialState, action: any) => {
 			});
 			return {
 				queue: [...sorted],
-				shafts: [...mainShaft],
+				shafts: [...mainShaft.all],
 				floors: floors,
 			};
+		}
+		case ASSIGN_FROM_MAIN: {
+			let elevatorAssignments: Assignment[] = [];
+			queue.forEach((task) => {
+				if (mainShaft.stationary.length > 0) {
+					let goal: number = floors + 1;
+					let bestFit = mainShaft.stationary[0];
+					mainShaft.stationary.map((cab) => {
+						if (Math.abs(task.floorCurrent - cab.floorCurrent) < goal) {
+							goal = Math.abs(task.floorCurrent - cab.floorCurrent);
+							bestFit = cab;
+							console.log({ newFit: bestFit, cab: cab });
+						}
+					});
+					console.log(bestFit);
+					return console.log("best Fit: ", bestFit);
+				}
+			});
+			return elevatorAssignments.length > 0
+				? {
+						queue: [...queue],
+						shafts: [...mainShaft.all],
+						floors: floors,
+				  }
+				: {
+						queue: [...queue],
+						shafts: [...mainShaft.all],
+						floors: floors,
+				  };
 		}
 	}
 	return state;

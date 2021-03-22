@@ -21,13 +21,11 @@ export interface Task {
 	start: Date;
 	end: Date | null;
 }
-
 export enum Direction {
 	Stationary,
 	Up,
 	Down,
 }
-
 export interface Elevator {
 	id: string;
 	countWithin: number;
@@ -35,4 +33,14 @@ export interface Elevator {
 	floorCurrent: number;
 	direction: Direction;
 	stack: Task[];
+}
+export interface SortedEle {
+	all: Elevator[];
+	stationary: Elevator[];
+	ascending: Elevator[];
+	descending: Elevator[];
+}
+export interface Assignment {
+	elevator: Elevator;
+	task: Task;
 }
